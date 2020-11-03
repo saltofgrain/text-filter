@@ -1,18 +1,19 @@
 {
-  "scripts": {
-    "build": "tsc --noEmit && parcel build src/popup.html src/content.tsx --out-dir dist/log-viewer",
-    "clean": "rm -rf dist/log-viewer"
-  },
-  "dependencies": {
-    "@material-ui/core": "^4.11.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
-  },
-  "devDependencies": {
-    "@types/chrome": "^0.0.126",
-    "@types/react": "^16.9.55",
-    "parcel-bundler": "^1.12.4",
-    "parcel-plugin-static-files-copy": "^2.5.0",
-    "typescript": "^4.0.5"
-  }
+    "scripts": {
+        "build": "tsc --noEmit && parcel build src/popup.html src/content.tsx --out-dir dist/log-viewer",
+        "clean": "rm -rf dist/log-viewer"
+    },
+    "dependencies": {
+        "@material-ui/core": "^4.11.0",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.126",
+        "@types/react": "^16.9.55",
+        "parcel-bundler": "^1.12.4",
+        "parcel-plugin-static-files-copy": "^2.5.0",
+        "prettier": "2.1.2",
+        "typescript": "^4.0.5"
+    }
 }

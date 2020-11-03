@@ -1,4 +1,3 @@
-
 // alert('bar');
 // function htmlToElement(html) {
 //     var template = document.createElement('template');
@@ -15,11 +14,11 @@
 // chrome.runtime.onConnect.addListener((port) => {
 //   port.onMessage.addListener((msg) => {
 //     if (msg.function == 'html') {
-//       port.postMessage({ 
-//           html: document.documentElement.outerHTML, 
-//         //   description: document.querySelector("meta[name=\'description\']").getAttribute('content'), 
+//       port.postMessage({
+//           html: document.documentElement.outerHTML,
+//         //   description: document.querySelector("meta[name=\'description\']").getAttribute('content'),
 //           description: 'description',
-//           title: document.title 
+//           title: document.title
 //         }
 //       );
 //     }
@@ -30,37 +29,35 @@ import "./content.css";
 
 const raw = document.querySelector("pre");
 // raw.innerHTML += "\nfoobarx";
-var rows = raw.innerHTML.split("\n").map(i => { 
+var rows = raw.innerHTML.split("\n").map((i) => {
     var row = document.createElement("div");
-    row.onclick = function() {
+    row.onclick = function () {
         // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
         //     console.log('content.js: ' + response);
-        // });        
+        // });
     };
     var t = document.createTextNode(i);
     row.appendChild(t);
     return row;
 });
 var wrapper = document.createElement("div");
-for(var i=0; i<rows.length; i++) {
+for (var i = 0; i < rows.length; i++) {
     wrapper.appendChild(rows[i]);
 }
 raw.parentNode.replaceChild(wrapper, raw);
 
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        console.log('received: ' + request.word);
-        let matches = getMatches(rows, request.word);
-        hideRows(matches);
-    }
-);
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    console.log("received: " + request.word);
+    let matches = getMatches(rows, request.word);
+    hideRows(matches);
+});
 
 function getMatches(rows, pattern) {
     let results = [];
-    for(var i=0; i<rows.length; i++) {
+    for (var i = 0; i < rows.length; i++) {
         let row = rows[i];
-        console.log(row.innerHTML + ' ?= ' + pattern + ' : ' + (row.innerHTML == pattern));
-        if(row.innerHTML == pattern) {
+        console.log(row.innerHTML + " ?= " + pattern + " : " + (row.innerHTML == pattern));
+        if (row.innerHTML == pattern) {
             results.push(row);
         }
     }
@@ -68,16 +65,15 @@ function getMatches(rows, pattern) {
 }
 
 function hideRows(rows) {
-    for(var row of rows) {
+    for (var row of rows) {
         // row.style.color = 'gray';
-        row.classList.add('match');
+        row.classList.add("match");
     }
 }
 
 // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
 //   console.log(response.farewell);
 // });
-
 
 // window.onload = function() {
 //     const raw = document.querySelector("pre");
