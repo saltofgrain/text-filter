@@ -1,7 +1,8 @@
 {
     "scripts": {
-        "build": "tsc --noEmit && parcel build src/popup.html src/content.tsx --out-dir dist/output",
-        "clean": "rm -rf dist/output"
+        "build": "tsc --noEmit && parcel build src/popup.html src/content.tsx --out-dir dist/output --no-minify",
+        "clean": "rm -rf dist/output",
+        "pretty": "prettier --write ."
     },
     "dependencies": {
         "@material-ui/core": "^4.11.0",
