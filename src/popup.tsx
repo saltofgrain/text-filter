@@ -17,10 +17,10 @@ function sendMessage(message) {
     });
 }
 
-type AppProps = {}
+type AppProps = {};
 type AppState = {
-    data: string[]
-}
+    data: string[];
+};
 
 class PopupApp extends React.Component<AppProps, AppState> {
     constructor(props) {
@@ -45,8 +45,10 @@ class PopupApp extends React.Component<AppProps, AppState> {
             <Container fixed style={{width: 200, height: 300, backgroundColor: "skyblue"}}>
                 <TextField variant="outlined" size="small" onKeyPress={this.handleKeyPress} />
                 <List dense={true}>
-                    {this.state.data.map(item => (
-                        <ListItem><ListItemText primary={item} /></ListItem>
+                    {this.state.data.map((item) => (
+                        <ListItem>
+                            <ListItemText primary={item} />
+                        </ListItem>
                     ))}
                 </List>
             </Container>
