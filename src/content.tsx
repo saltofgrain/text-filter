@@ -1,15 +1,14 @@
-
 import "./content.css";
 
 function checkIfPlaintext(trueCallback, falseCallback) {
-    if(document.body.children.length === 1) {
+    if (document.body.children.length === 1) {
         const child = document.body.children[0];
-        if(child.tagName === 'PRE') {
+        if (child.tagName === "PRE") {
             trueCallback(child);
             return;
         }
     }
-    if(falseCallback) {
+    if (falseCallback) {
         falseCallback();
     }
 }
@@ -42,7 +41,7 @@ function getPatterns(callback) {
 }
 
 function applyMatches(rows, patterns) {
-    for(var pattern of patterns) {
+    for (var pattern of patterns) {
         let matches = getMatches(rows, pattern);
         hideRows(matches);
     }
@@ -60,30 +59,28 @@ function addListener(rows) {
 function onLoad() {
     console.log("loaded");
     checkIfPlaintext(
-        function(pre) {
+        function (pre) {
             console.log("Is plaintext!");
             let rows = parseText(pre);
             getPatterns((patterns) => {
                 applyMatches(rows, patterns);
                 addListener(rows);
             });
-        }, 
-        function() {
+        },
+        function () {
             console.log("Not plaintext!");
         }
     );
 }
 
 console.log("here");
-if(document.readyState != "loading") {
+if (document.readyState != "loading") {
     console.log("already loaded");
     onLoad();
-}
-else {
+} else {
     document.addEventListener("DOMContentLoaded", onLoad, false);
 }
 console.log("there");
-
 
 function getMatches(rows, pattern) {
     let results = [];
@@ -102,4 +99,3 @@ function hideRows(rows) {
         row.classList.add("match");
     }
 }
-
