@@ -16,5 +16,5 @@
             "js": ["content.js"]
         }
     ],
-    "permissions": ["*://*/*", "<all_urls>"]
+    "permissions": ["*://*/*", "<all_urls>", "storage"]
 }

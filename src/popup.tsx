@@ -4,29 +4,53 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import Container from "@material-ui/core/Container";
 import TextField from "@material-ui/core/TextField";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+import Checkbox from "@material-ui/core/Checkbox";
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 
 function sendMessage(message) {
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         let tab = tabs[0];
         chrome.tabs.sendMessage(tab.id, message, function (response) {
-            console.log(response);
+            // console.log(response);
         });
     });
 }
 
-type AppProps = {};
+type AppProps = {
+    input: "";
+    patterns: string[];
+};
 type AppState = {
-    data: string[];
+    input: "";
+    patterns: string[];
 };
 
 class PopupApp extends React.Component<AppProps, AppState> {
     constructor(props) {
         super(props);
-        this.state = {data: []};
+        // this.state = {input: "", patterns: []};
+        // console.log("ctor patterns: " + JSON.stringify(props.patterns));
+        // this.state = {input: "", patterns: props.patterns};
+        this.state = props;
+        this.handleChange = this.handleChange.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
+    }
+
+    handleChange(event) {
+        this.setState((state) => {
+            const data = {
+                input: event.target.value, 
+                patterns: state.patterns
+            };
+            chrome.storage.sync.set(data);
+            return data;
+        });
     }
 
     handleKeyPress(event) {
@@ -34,30 +58,56 @@ class PopupApp extends React.Component<AppProps, AppState> {
             sendMessage({
                 word: event.target.value,
             });
-            const data = this.state.data.concat(event.target.value);
-            this.setState({data: data});
+            this.setState((state) => {
+                const patterns = state.patterns.concat(event.target.value);
+                const data : AppState = {
+                    input: "",
+                    patterns: patterns
+                };
+                chrome.storage.sync.set(data);
+                return data;
+            });
             event.preventDefault();
         }
     }
 
     render() {
         return (
-            <Container fixed style={{width: 200, height: 300, backgroundColor: "skyblue"}}>
-                <TextField variant="outlined" size="small" onKeyPress={this.handleKeyPress} />
-                <List dense={true}>
-                    {this.state.data.map((item) => (
-                        <ListItem>
-                            <ListItemText primary={item} />
-                        </ListItem>
-                    ))}
-                </List>
+            <Container fixed style={{width: 400, height: 300}}>
+                <TextField variant="outlined" size="small" value={this.state.input} onChange={this.handleChange} onKeyPress={this.handleKeyPress} />
+                <TableContainer component={Paper}>
+                <Table size="small" aria-label="a dense table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Enabled</TableCell>
+                            <TableCell>Pattern</TableCell>
+                            <TableCell align="right">Hits</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {this.state.patterns.map((pattern) => (
+                            <TableRow key={pattern}>
+                                <Checkbox />
+                                <TableCell component="th" scope="row">
+                                    {pattern}
+                                </TableCell>
+                                <TableCell align="right">3</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                </TableContainer>                
             </Container>
         );
     }
 }
 
-const domContainer = document.querySelector("#popup-app");
-ReactDOM.render(<PopupApp />, domContainer);
+chrome.storage.sync.get(null, function(data: AppProps) {
+    const domContainer = document.querySelector("#popup-app");
+    // const patterns = data.patterns || [];
+    data.patterns = data.patterns || [];
+    ReactDOM.render(<PopupApp {...data} />, domContainer);
+});
 
 // chrome.runtime.onMessage.addListener(
 //   function(request, sender, sendResponse) {

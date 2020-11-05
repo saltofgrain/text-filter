@@ -1,62 +1,94 @@
-// alert('bar');
-// function htmlToElement(html) {
-//     var template = document.createElement('template');
-//     html = html.trim(); // Never return a text node of whitespace as the result
-//     template.innerHTML = html;
-//     return template.content.firstChild;
-// }
-
-// var controlPanel = htmlToElement("<div class='control-panel'>foo bar<\/div>");
-// document.body.appendChild(controlPanel);
-
-// alert("bar");
-
-// chrome.runtime.onConnect.addListener((port) => {
-//   port.onMessage.addListener((msg) => {
-//     if (msg.function == 'html') {
-//       port.postMessage({
-//           html: document.documentElement.outerHTML,
-//         //   description: document.querySelector("meta[name=\'description\']").getAttribute('content'),
-//           description: 'description',
-//           title: document.title
-//         }
-//       );
-//     }
-//   });
-// });
 
 import "./content.css";
 
-const raw = document.querySelector("pre");
-// raw.innerHTML += "\nfoobarx";
-var rows = raw.innerHTML.split("\n").map((i) => {
-    var row = document.createElement("div");
-    row.onclick = function () {
-        // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-        //     console.log('content.js: ' + response);
-        // });
-    };
-    var t = document.createTextNode(i);
-    row.appendChild(t);
-    return row;
-});
-var wrapper = document.createElement("div");
-for (var i = 0; i < rows.length; i++) {
-    wrapper.appendChild(rows[i]);
+function checkIfPlaintext(trueCallback, falseCallback) {
+    if(document.body.children.length === 1) {
+        const child = document.body.children[0];
+        if(child.tagName === 'PRE') {
+            trueCallback(child);
+            return;
+        }
+    }
+    if(falseCallback) {
+        falseCallback();
+    }
 }
-raw.parentNode.replaceChild(wrapper, raw);
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    console.log("received: " + request.word);
-    let matches = getMatches(rows, request.word);
-    hideRows(matches);
-});
+function parseText(pre) {
+    var rows = pre.innerHTML.split("\n").map((i) => {
+        var row = document.createElement("div");
+        row.onclick = function () {
+            // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
+            //     console.log('content.js: ' + response);
+            // });
+        };
+        var t = document.createTextNode(i);
+        row.appendChild(t);
+        return row;
+    });
+    var wrapper = document.createElement("div");
+    for (var i = 0; i < rows.length; i++) {
+        wrapper.appendChild(rows[i]);
+    }
+    pre.parentNode.replaceChild(wrapper, pre);
+    return rows;
+}
+
+function getPatterns(callback) {
+    chrome.storage.sync.get(null, (data) => {
+        let patterns = data.patterns || [];
+        callback(patterns);
+    });
+}
+
+function applyMatches(rows, patterns) {
+    for(var pattern of patterns) {
+        let matches = getMatches(rows, pattern);
+        hideRows(matches);
+    }
+}
+
+function addListener(rows) {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        console.log("received: " + request.word);
+        let matches = getMatches(rows, request.word);
+        hideRows(matches);
+        // sendResponse({});
+    });
+}
+
+function onLoad() {
+    console.log("loaded");
+    checkIfPlaintext(
+        function(pre) {
+            console.log("Is plaintext!");
+            let rows = parseText(pre);
+            getPatterns((patterns) => {
+                applyMatches(rows, patterns);
+                addListener(rows);
+            });
+        }, 
+        function() {
+            console.log("Not plaintext!");
+        }
+    );
+}
+
+console.log("here");
+if(document.readyState != "loading") {
+    console.log("already loaded");
+    onLoad();
+}
+else {
+    document.addEventListener("DOMContentLoaded", onLoad, false);
+}
+console.log("there");
+
 
 function getMatches(rows, pattern) {
     let results = [];
     for (var i = 0; i < rows.length; i++) {
         let row = rows[i];
-        console.log(row.innerHTML + " ?= " + pattern + " : " + (row.innerHTML == pattern));
         if (row.innerHTML == pattern) {
             results.push(row);
         }
@@ -71,17 +103,3 @@ function hideRows(rows) {
     }
 }
 
-// chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-//   console.log(response.farewell);
-// });
-
-// window.onload = function() {
-//     const raw = document.querySelector("pre");
-//     raw.innerHTML += "\nfoobar";
-// }
-
-// function onLoad() {
-//     // alert("foobar");
-// }
-
-// document.addEventListener("DOMContentLoaded", onLoad, false);
