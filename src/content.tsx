@@ -70,7 +70,14 @@ function addListener(rows) {
         else if (action === "hide-matches") {
             hideMatches();
         }
-        // sendResponse({});
+        return true;
+    });
+}
+
+function addNoopListener() {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        console.log("noop: " + JSON.stringify(request));
+        return true;
     });
 }
 
@@ -105,6 +112,7 @@ function onLoad() {
         },
         function () {
             console.log("Not plaintext!");
+            addNoopListener();
         }
     );
 }

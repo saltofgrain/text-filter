@@ -18,6 +18,7 @@ function addCommandHandler() {
                 action: "hide-matches"
             });
         }
+        return true;
     });    
 }
 
