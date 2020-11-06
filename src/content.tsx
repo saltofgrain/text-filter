@@ -47,13 +47,49 @@ function applyMatches(rows, patterns) {
     }
 }
 
+function hideMatches() {
+    const elements = document.querySelectorAll(".match");
+    elements.forEach((element) => {
+        if(element.classList.contains("hidden")) {
+            element.classList.remove("hidden");
+        }
+        else {
+            element.classList.add("hidden");
+        }
+    })    
+}
+
 function addListener(rows) {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-        console.log("received: " + request.word);
-        let matches = getMatches(rows, request.word);
-        hideRows(matches);
+        console.log("received: " + JSON.stringify(request));
+        const action = request.action;
+        if (action === "add-pattern") {
+            let matches = getMatches(rows, request.word);
+            hideRows(matches);
+        }
+        else if (action === "hide-matches") {
+            hideMatches();
+        }
         // sendResponse({});
     });
+}
+
+function getMatches(rows, pattern) {
+    let results = [];
+    for (var i = 0; i < rows.length; i++) {
+        let row = rows[i];
+        if (row.innerHTML.toLowerCase().includes(pattern)) {
+            results.push(row);
+        }
+    }
+    return results;
+}
+
+function hideRows(rows) {
+    for (var row of rows) {
+        // row.style.color = 'gray';
+        row.classList.add("match");
+    }
 }
 
 function onLoad() {
@@ -81,21 +117,3 @@ if (document.readyState != "loading") {
     document.addEventListener("DOMContentLoaded", onLoad, false);
 }
 console.log("there");
-
-function getMatches(rows, pattern) {
-    let results = [];
-    for (var i = 0; i < rows.length; i++) {
-        let row = rows[i];
-        if (row.innerHTML == pattern) {
-            results.push(row);
-        }
-    }
-    return results;
-}
-
-function hideRows(rows) {
-    for (var row of rows) {
-        // row.style.color = 'gray';
-        row.classList.add("match");
-    }
-}

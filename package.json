@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "build": "tsc --noEmit && parcel build src/popup.html src/content.tsx --out-dir dist/output --no-minify",
+        "build": "tsc --noEmit && parcel build src/popup.html src/content.tsx src/background.ts --out-dir dist/output --no-minify",
         "clean": "rm -rf dist/output",
         "pretty": "prettier --write ."
     },

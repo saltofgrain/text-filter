@@ -9,6 +9,10 @@
         "default_popup": "popup.html",
         "default_title": "Log Viewer"
     },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
@@ -16,5 +20,14 @@
             "js": ["content.js"]
         }
     ],
+    "commands": {
+        "show-only-filtered-lines": {
+            "suggested_key": {
+                "default": "Ctrl+X",
+                "mac": "Command+X"
+            },
+            "description": "Show Only Filtered Lines"
+        }
+    },
     "permissions": ["*://*/*", "<all_urls>", "storage"]
 }

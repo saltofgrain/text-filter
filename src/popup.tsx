@@ -56,6 +56,7 @@ class PopupApp extends React.Component<AppProps, AppState> {
     handleKeyPress(event) {
         if (event.key === "Enter") {
             sendMessage({
+                action: "add-pattern",
                 word: event.target.value,
             });
             this.setState((state) => {
