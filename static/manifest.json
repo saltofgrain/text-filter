@@ -21,12 +21,12 @@
         }
     ],
     "commands": {
-        "show-only-filtered-lines": {
+        "toggle-hide-matches": {
             "suggested_key": {
                 "default": "Ctrl+X",
                 "mac": "Command+X"
             },
-            "description": "Show Only Filtered Lines"
+            "description": "Toggle Hide Matches"
         }
     },
     "permissions": ["*://*/*", "<all_urls>", "storage"]

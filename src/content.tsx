@@ -1,4 +1,5 @@
 import "./content.css";
+import { AppState, Pattern, getAppState } from "./shared"
 
 function checkIfPlaintext(trueCallback, falseCallback) {
     if (document.body.children.length === 1) {
@@ -17,9 +18,6 @@ function parseText(pre) {
     var rows = pre.innerHTML.split("\n").map((i) => {
         var row = document.createElement("div");
         row.onclick = function () {
-            // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-            //     console.log('content.js: ' + response);
-            // });
         };
         var t = document.createTextNode(i);
         row.appendChild(t);
@@ -33,42 +31,37 @@ function parseText(pre) {
     return rows;
 }
 
-function getPatterns(callback) {
-    chrome.storage.sync.get(null, (data) => {
-        let patterns = data.patterns || [];
-        callback(patterns);
-    });
-}
 
-function applyMatches(rows, patterns) {
+function applyAppState(rows, appState: AppState) {
+    const patterns = appState.patterns || [];
+    labelMatches(rows, false);
     for (var pattern of patterns) {
-        let matches = getMatches(rows, pattern);
-        hideRows(matches);
+        let matches = getMatches(rows, pattern.text);
+        labelMatches(matches, true);
+        hideMatches(matches, appState.hideMatches);
     }
 }
 
-function hideMatches() {
-    const elements = document.querySelectorAll(".match");
-    elements.forEach((element) => {
-        if(element.classList.contains("hidden")) {
-            element.classList.remove("hidden");
-        }
-        else {
-            element.classList.add("hidden");
-        }
-    })    
-}
-
-function addListener(rows) {
+function addListener() {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.log("received: " + JSON.stringify(request));
         const action = request.action;
         if (action === "add-pattern") {
-            let matches = getMatches(rows, request.word);
-            hideRows(matches);
+            // let matches = getMatches(rows, request.word);
+            // hideRows(matches);
+            getAppState((appState) => {
+                applyAppState(textRows, appState);
+            });
+        }
+        else if (action === "del-pattern") {
+            getAppState((appState) => {
+                applyAppState(textRows, appState);
+            });
         }
         else if (action === "hide-matches") {
-            hideMatches();
+            getAppState((appState) => {
+                applyAppState(textRows, appState);
+            });
         }
         return true;
     });
@@ -92,12 +85,29 @@ function getMatches(rows, pattern) {
     return results;
 }
 
-function hideRows(rows) {
+function labelMatches(rows, label: boolean) {
     for (var row of rows) {
-        // row.style.color = 'gray';
-        row.classList.add("match");
+        if(label) {
+            row.classList.add("match");
+        }
+        else {
+            row.classList.remove("match");
+        }
     }
 }
+
+function hideMatches(matches, hide: boolean) {
+    matches.forEach((element) => {
+        if(hide) {
+            element.classList.add("hidden");
+        }
+        else {
+            element.classList.remove("hidden");
+        }
+    });
+}
+
+var textRows; // TODO: replace this with global member store
 
 function onLoad() {
     console.log("loaded");
@@ -105,9 +115,10 @@ function onLoad() {
         function (pre) {
             console.log("Is plaintext!");
             let rows = parseText(pre);
-            getPatterns((patterns) => {
-                applyMatches(rows, patterns);
-                addListener(rows);
+            textRows = rows;
+            getAppState((appState) => {
+                applyAppState(rows, appState);
+                addListener();
             });
         },
         function () {
@@ -117,11 +128,9 @@ function onLoad() {
     );
 }
 
-console.log("here");
 if (document.readyState != "loading") {
     console.log("already loaded");
     onLoad();
 } else {
     document.addEventListener("DOMContentLoaded", onLoad, false);
 }
-console.log("there");

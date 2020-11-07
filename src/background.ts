@@ -1,22 +1,21 @@
+import { sendMessage, getAppState } from "./shared"
 
-function sendMessage(message) {
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        let tab = tabs[0];
-        chrome.tabs.sendMessage(tab.id, message, function (response) {
-            // console.log(response);
+function toggleHideMatches() {
+    getAppState((appState) => {
+        appState.hideMatches = !appState.hideMatches;
+        chrome.storage.sync.set(appState);
+        sendMessage({
+            action: "hide-matches"
         });
     });
 }
-
 
 function addCommandHandler() {
     chrome.commands.onCommand.addListener(function(command) {
         console.log("command:");
         console.log(command);
-        if (command === "show-only-filtered-lines") {
-            sendMessage({
-                action: "hide-matches"
-            });
+        if (command === "toggle-hide-matches") { // TODO: change this to "toggle-hide-matches"
+            toggleHideMatches();
         }
         return true;
     });    

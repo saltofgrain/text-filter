@@ -12,24 +12,14 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import IconButton from "@material-ui/core/IconButton";
+import DeleteIcon from "@material-ui/icons/Delete";
+import { AppState, AppProps, Pattern, sendMessage } from "./shared"
 
-function sendMessage(message) {
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-        let tab = tabs[0];
-        chrome.tabs.sendMessage(tab.id, message, function (response) {
-            // console.log(response);
-        });
-    });
+function getUid() {
+    const uid = Math.random().toString(36).slice(-6);
+    return uid;
 }
-
-type AppProps = {
-    input: "";
-    patterns: string[];
-};
-type AppState = {
-    input: "";
-    patterns: string[];
-};
 
 class PopupApp extends React.Component<AppProps, AppState> {
     constructor(props) {
@@ -40,6 +30,7 @@ class PopupApp extends React.Component<AppProps, AppState> {
         this.state = props;
         this.handleChange = this.handleChange.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
+        this.handleDeleteClick = this.handleDeleteClick.bind(this);
     }
 
     handleChange(event) {
@@ -55,21 +46,45 @@ class PopupApp extends React.Component<AppProps, AppState> {
 
     handleKeyPress(event) {
         if (event.key === "Enter") {
-            sendMessage({
-                action: "add-pattern",
-                word: event.target.value,
-            });
+            const newPatternText = event.target.value;
             this.setState((state) => {
-                const patterns = state.patterns.concat(event.target.value);
-                const data: AppState = {
+                const newPattern : Pattern = {
+                    id: getUid(), // TODO: check for collisions
+                    text: newPatternText,
+                    enabled: true,
+                    hits: 0
+                }
+                const newState : AppState = {
                     input: "",
-                    patterns: patterns,
+                    patterns: state.patterns.concat(newPattern),
+                    hideMatches: state.hideMatches
                 };
-                chrome.storage.sync.set(data);
-                return data;
+                chrome.storage.sync.set(newState);
+                sendMessage({
+                    action: "add-pattern",
+                    word: newPatternText,
+                });
+                return newState;
             });
             event.preventDefault();
         }
+    }
+
+    handleDeleteClick(patternId) {
+        this.setState((state) => {
+            const newState : AppState = {
+                input: state.input,
+                patterns: state.patterns.filter((p) => p.id !== patternId),
+                hideMatches: state.hideMatches
+            };
+            chrome.storage.sync.set(newState);
+            sendMessage({
+                action: "del-pattern",
+                id: patternId,
+            });
+            return newState;
+        });
+        event.preventDefault();
     }
 
     render() {
@@ -89,16 +104,24 @@ class PopupApp extends React.Component<AppProps, AppState> {
                                 <TableCell>Enabled</TableCell>
                                 <TableCell>Pattern</TableCell>
                                 <TableCell align="right">Hits</TableCell>
+                                <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {this.state.patterns.map((pattern) => (
-                                <TableRow key={pattern}>
-                                    <Checkbox />
-                                    <TableCell component="th" scope="row">
-                                        {pattern}
+                                <TableRow key={pattern.id}>
+                                    <TableCell>
+                                        <Checkbox />
                                     </TableCell>
-                                    <TableCell align="right">3</TableCell>
+                                    <TableCell component="th" scope="row">
+                                        {pattern.text}
+                                    </TableCell>
+                                    <TableCell align="right">{pattern.hits}</TableCell>
+                                    <TableCell>
+                                        <IconButton onClick={() => this.handleDeleteClick(pattern.id)}>
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -115,13 +138,3 @@ chrome.storage.sync.get(null, function (data: AppProps) {
     data.patterns = data.patterns || [];
     ReactDOM.render(<PopupApp {...data} />, domContainer);
 });
-
-// chrome.runtime.onMessage.addListener(
-//   function(request, sender, sendResponse) {
-//     console.log(sender.tab ?
-//                 "from a content script:" + sender.tab.url :
-//                 "from the extension");
-//     alert('popup');
-//     // if (request.greeting == "hello")
-//       // sendResponse({farewell: "goodbye"});
-//   });
