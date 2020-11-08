@@ -31,6 +31,7 @@ class PopupApp extends React.Component<AppProps, AppState> {
         this.handleChange = this.handleChange.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.handleDeleteClick = this.handleDeleteClick.bind(this);
+        this.handleEnableClick = this.handleEnableClick.bind(this);
     }
 
     handleChange(event) {
@@ -87,6 +88,25 @@ class PopupApp extends React.Component<AppProps, AppState> {
         event.preventDefault();
     }
 
+    handleEnableClick(event, patternId) {
+        this.setState((state) => {
+            const newState : AppState = {
+                input: state.input,
+                patterns: state.patterns,
+                hideMatches: state.hideMatches
+            };
+            const index = newState.patterns.findIndex((p) => p.id === patternId);
+            newState.patterns[index].enabled = event.target.checked;
+            chrome.storage.sync.set(newState);
+            sendMessage({
+                action: "toggle-pattern",  // TODO: change this to toggle pattern
+                id: patternId,
+            });
+            return newState;
+        });
+        // event.preventDefault();
+    }
+
     render() {
         return (
             <Container fixed style={{width: 400, height: 300}}>
@@ -111,7 +131,7 @@ class PopupApp extends React.Component<AppProps, AppState> {
                             {this.state.patterns.map((pattern) => (
                                 <TableRow key={pattern.id}>
                                     <TableCell>
-                                        <Checkbox />
+                                        <Checkbox checked={pattern.enabled} onChange={(event) => this.handleEnableClick(event, pattern.id)}/>
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         {pattern.text}

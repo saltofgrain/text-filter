@@ -37,8 +37,8 @@ function applyAppState(rows, appState: AppState) {
     labelMatches(rows, false);
     for (var pattern of patterns) {
         let matches = getMatches(rows, pattern.text);
-        labelMatches(matches, true);
-        hideMatches(matches, appState.hideMatches);
+        labelMatches(matches, pattern.enabled);
+        hideMatches(matches, appState.hideMatches && pattern.enabled);
     }
 }
 
@@ -54,6 +54,11 @@ function addListener() {
             });
         }
         else if (action === "del-pattern") {
+            getAppState((appState) => {
+                applyAppState(textRows, appState);
+            });
+        }
+        else if (action === "toggle-pattern") {
             getAppState((appState) => {
                 applyAppState(textRows, appState);
             });
