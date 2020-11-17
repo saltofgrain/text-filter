@@ -1,9 +1,8 @@
-
 export type Pattern = {
-    id: string,
-    text: string,
-    enabled: boolean,
-    hits: number,
+    id: string;
+    text: string;
+    enabled: boolean;
+    hits: number;
 };
 
 export type AppState = {
@@ -30,4 +29,3 @@ export function getAppState(callback: AppStateCallback) {
         callback(appState);
     });
 }
-

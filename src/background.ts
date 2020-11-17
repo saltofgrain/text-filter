@@ -1,24 +1,24 @@
-import { sendMessage, getAppState } from "./shared"
+import {sendMessage, getAppState} from "./shared";
 
 function toggleHideMatches() {
     getAppState((appState) => {
         appState.hideMatches = !appState.hideMatches;
         chrome.storage.sync.set(appState);
         sendMessage({
-            action: "hide-matches"
+            action: "hide-matches",
         });
     });
 }
 
 function addCommandHandler() {
-    chrome.commands.onCommand.addListener(function(command) {
+    chrome.commands.onCommand.addListener(function (command) {
         console.log("command:");
         console.log(command);
-        if (command === "toggle-hide-matches") { 
+        if (command === "toggle-hide-matches") {
             toggleHideMatches();
         }
         return true;
-    });    
+    });
 }
 
 addCommandHandler();

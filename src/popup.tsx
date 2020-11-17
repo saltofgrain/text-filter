@@ -14,7 +14,7 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { AppState, AppProps, Pattern, sendMessage } from "./shared"
+import {AppState, AppProps, Pattern, sendMessage} from "./shared";
 
 function getUid() {
     const uid = Math.random().toString(36).slice(-6);
@@ -49,16 +49,16 @@ class PopupApp extends React.Component<AppProps, AppState> {
         if (event.key === "Enter") {
             const newPatternText = event.target.value;
             this.setState((state) => {
-                const newPattern : Pattern = {
+                const newPattern: Pattern = {
                     id: getUid(), // TODO: check for collisions
                     text: newPatternText,
                     enabled: true,
-                    hits: 0
-                }
-                const newState : AppState = {
+                    hits: 0,
+                };
+                const newState: AppState = {
                     input: "",
                     patterns: state.patterns.concat(newPattern),
-                    hideMatches: state.hideMatches
+                    hideMatches: state.hideMatches,
                 };
                 chrome.storage.sync.set(newState);
                 sendMessage({
@@ -73,10 +73,10 @@ class PopupApp extends React.Component<AppProps, AppState> {
 
     handleDeleteClick(patternId) {
         this.setState((state) => {
-            const newState : AppState = {
+            const newState: AppState = {
                 input: state.input,
                 patterns: state.patterns.filter((p) => p.id !== patternId),
-                hideMatches: state.hideMatches
+                hideMatches: state.hideMatches,
             };
             chrome.storage.sync.set(newState);
             sendMessage({
@@ -90,16 +90,16 @@ class PopupApp extends React.Component<AppProps, AppState> {
 
     handleEnableClick(event, patternId) {
         this.setState((state) => {
-            const newState : AppState = {
+            const newState: AppState = {
                 input: state.input,
                 patterns: state.patterns,
-                hideMatches: state.hideMatches
+                hideMatches: state.hideMatches,
             };
             const index = newState.patterns.findIndex((p) => p.id === patternId);
             newState.patterns[index].enabled = event.target.checked;
             chrome.storage.sync.set(newState);
             sendMessage({
-                action: "toggle-pattern",  // TODO: change this to toggle pattern
+                action: "toggle-pattern", // TODO: change this to toggle pattern
                 id: patternId,
             });
             return newState;
@@ -131,14 +131,21 @@ class PopupApp extends React.Component<AppProps, AppState> {
                             {this.state.patterns.map((pattern) => (
                                 <TableRow key={pattern.id}>
                                     <TableCell>
-                                        <Checkbox checked={pattern.enabled} onChange={(event) => this.handleEnableClick(event, pattern.id)}/>
+                                        <Checkbox
+                                            checked={pattern.enabled}
+                                            onChange={(event) =>
+                                                this.handleEnableClick(event, pattern.id)
+                                            }
+                                        />
                                     </TableCell>
                                     <TableCell component="th" scope="row">
                                         {pattern.text}
                                     </TableCell>
                                     <TableCell align="right">{pattern.hits}</TableCell>
                                     <TableCell>
-                                        <IconButton onClick={() => this.handleDeleteClick(pattern.id)}>
+                                        <IconButton
+                                            onClick={() => this.handleDeleteClick(pattern.id)}
+                                        >
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>

@@ -1,5 +1,5 @@
 import "./content.css";
-import { AppState, Pattern, getAppState } from "./shared"
+import {AppState, Pattern, getAppState} from "./shared";
 
 function checkIfPlaintext(trueCallback, falseCallback) {
     if (document.body.children.length === 1) {
@@ -17,8 +17,7 @@ function checkIfPlaintext(trueCallback, falseCallback) {
 function parseText(pre) {
     var rows = pre.innerHTML.split("\n").map((i) => {
         var row = document.createElement("div");
-        row.onclick = function () {
-        };
+        row.onclick = function () {};
         var t = document.createTextNode(i);
         row.appendChild(t);
         return row;
@@ -30,7 +29,6 @@ function parseText(pre) {
     pre.parentNode.replaceChild(wrapper, pre);
     return rows;
 }
-
 
 function applyAppState(rows, appState: AppState) {
     const patterns = appState.patterns || [];
@@ -52,18 +50,15 @@ function addListener() {
             getAppState((appState) => {
                 applyAppState(textRows, appState);
             });
-        }
-        else if (action === "del-pattern") {
+        } else if (action === "del-pattern") {
             getAppState((appState) => {
                 applyAppState(textRows, appState);
             });
-        }
-        else if (action === "toggle-pattern") {
+        } else if (action === "toggle-pattern") {
             getAppState((appState) => {
                 applyAppState(textRows, appState);
             });
-        }
-        else if (action === "hide-matches") {
+        } else if (action === "hide-matches") {
             getAppState((appState) => {
                 applyAppState(textRows, appState);
             });
@@ -92,10 +87,9 @@ function getMatches(rows, pattern) {
 
 function labelMatches(rows, label: boolean) {
     for (var row of rows) {
-        if(label) {
+        if (label) {
             row.classList.add("match");
-        }
-        else {
+        } else {
             row.classList.remove("match");
         }
     }
@@ -103,10 +97,9 @@ function labelMatches(rows, label: boolean) {
 
 function hideMatches(matches, hide: boolean) {
     matches.forEach((element) => {
-        if(hide) {
+        if (hide) {
             element.classList.add("hidden");
-        }
-        else {
+        } else {
             element.classList.remove("hidden");
         }
     });
