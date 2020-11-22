@@ -116,11 +116,10 @@ function hideMatches(matches, hide: boolean) {
 
 function renderPanel(appState: AppProps) {
     var div = document.createElement("div");
-    div.id = "popup-app";
-    div.className = "app-panel";
+    div.id = "app-panel";
     document.body.prepend(div);
 
-    const domContainer = document.querySelector("#popup-app");
+    const domContainer = document.querySelector("#app-panel");
     // const patterns = appState.patterns || [];
     appState.patterns = appState.patterns || [];
     var args = {
