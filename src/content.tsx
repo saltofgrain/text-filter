@@ -1,5 +1,8 @@
 import "./content.css";
-import {AppState, Pattern, getAppState} from "./shared";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import {AppState, Pattern, getAppState, AppProps} from "./shared";
+import {AppPanel} from "./panel";
 
 function checkIfPlaintext(trueCallback, falseCallback) {
     if (document.body.children.length === 1) {
@@ -38,6 +41,12 @@ function applyAppState(rows, appState: AppState) {
         labelMatches(matches, pattern.enabled);
         hideMatches(matches, appState.hideMatches && pattern.enabled);
     }
+}
+
+function handleEvent() {
+    getAppState((appState) => {
+        applyAppState(textRows, appState);
+    });
 }
 
 function addListener() {
@@ -105,21 +114,38 @@ function hideMatches(matches, hide: boolean) {
     });
 }
 
+function renderPanel(appState: AppProps) {
+    var div = document.createElement("div");
+    div.id = "popup-app";
+    div.className = "app-panel";
+    document.body.prepend(div);
+
+    const domContainer = document.querySelector("#popup-app");
+    // const patterns = appState.patterns || [];
+    appState.patterns = appState.patterns || [];
+    var args = {
+        handleEvent: handleEvent, // TODO: is this the best way to handle event changes?
+        ...appState
+    }
+    ReactDOM.render(<AppPanel {...args} />, domContainer);
+}
+
 var textRows; // TODO: replace this with global member store
 
 function onLoad() {
     console.log("loaded");
     checkIfPlaintext(
-        function (pre) {
+        function isPlaintext(pre) {
             console.log("Is plaintext!");
             let rows = parseText(pre);
             textRows = rows;
             getAppState((appState) => {
                 applyAppState(rows, appState);
                 addListener();
+                renderPanel(appState);
             });
         },
-        function () {
+        function isNotPlaintext() {
             console.log("Not plaintext!");
             addNoopListener();
         }

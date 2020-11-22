@@ -21,12 +21,14 @@ function getUid() {
     return uid;
 }
 
-export class PopupApp extends React.Component<AppProps, AppState> {
+export class AppPanel extends React.Component<AppProps, AppState> {
+    handleEvent: any;
     constructor(props) {
         super(props);
         // this.state = {input: "", patterns: []};
         // console.log("ctor patterns: " + JSON.stringify(props.patterns));
         // this.state = {input: "", patterns: props.patterns};
+        this.handleEvent = (this.props as any).handleEvent;  // TODO: remove "any"
         this.state = props;
         this.handleChange = this.handleChange.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -61,10 +63,11 @@ export class PopupApp extends React.Component<AppProps, AppState> {
                     hideMatches: state.hideMatches,
                 };
                 chrome.storage.sync.set(newState);
-                sendMessage({
-                    action: "add-pattern",
-                    word: newPatternText,
-                });
+                // sendMessage({
+                //     action: "add-pattern",
+                //     word: newPatternText,
+                // });
+                this.handleEvent();
                 return newState;
             });
             event.preventDefault();
@@ -79,10 +82,11 @@ export class PopupApp extends React.Component<AppProps, AppState> {
                 hideMatches: state.hideMatches,
             };
             chrome.storage.sync.set(newState);
-            sendMessage({
-                action: "del-pattern",
-                id: patternId,
-            });
+            // sendMessage({
+            //     action: "del-pattern",
+            //     id: patternId,
+            // });
+            this.handleEvent();
             return newState;
         });
         event.preventDefault();
@@ -98,10 +102,11 @@ export class PopupApp extends React.Component<AppProps, AppState> {
             const index = newState.patterns.findIndex((p) => p.id === patternId);
             newState.patterns[index].enabled = event.target.checked;
             chrome.storage.sync.set(newState);
-            sendMessage({
-                action: "toggle-pattern", // TODO: change this to toggle pattern
-                id: patternId,
-            });
+            this.handleEvent();
+            // sendMessage({
+            //     action: "toggle-pattern", // TODO: change this to toggle pattern
+            //     id: patternId,
+            // });
             return newState;
         });
         // event.preventDefault();
@@ -158,10 +163,3 @@ export class PopupApp extends React.Component<AppProps, AppState> {
         );
     }
 }
-
-chrome.storage.sync.get(null, function (data: AppProps) {
-    const domContainer = document.querySelector("#popup-app");
-    // const patterns = data.patterns || [];
-    data.patterns = data.patterns || [];
-    ReactDOM.render(<PopupApp {...data} />, domContainer);
-});
